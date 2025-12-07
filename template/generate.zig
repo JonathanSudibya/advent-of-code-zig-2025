@@ -6,19 +6,19 @@ var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const Hash = std.crypto.hash.Md5;
 const hashes_file = "template/hashes.bin";
 
-fn instantiateTemplate(template: []const u8, day: u32) ![]const u8 {
-    var list = std.ArrayList(u8).init(gpa.allocator());
-    errdefer list.deinit();
+fn instantiateTemplate(template: []const u8, day: u32, allocator: std.mem.Allocator) ![]const u8 {
+    var list = std.ArrayList(u8){};
+    errdefer list.deinit(allocator);
 
-    try list.ensureTotalCapacity(template.len + 100);
+    try list.ensureTotalCapacity(allocator, template.len + 100);
     var rest: []const u8 = template;
     while (std.mem.indexOfScalar(u8, rest, '$')) |index| {
-        try list.appendSlice(rest[0..index]);
-        try std.fmt.format(list.writer(), "{d:0>2}", .{day});
+        try list.appendSlice(allocator, rest[0..index]);
+        try std.fmt.format(list.writer(allocator), "{d:0>2}", .{day});
         rest = rest[index + 1 ..];
     }
-    try list.appendSlice(rest);
-    return list.toOwnedSlice();
+    try list.appendSlice(allocator, rest);
+    return list.toOwnedSlice(allocator);
 }
 
 fn readHashes() !*[25][Hash.digest_length]u8 {
@@ -97,7 +97,7 @@ pub fn main() !void {
                 try file.setEndPos(0);
             }
 
-            const text = try instantiateTemplate(template, day);
+            const text = try instantiateTemplate(template, day, gpa.allocator());
             defer gpa.allocator().free(text);
 
             Hash.hash(text, &hashes[day - 1], .{});
