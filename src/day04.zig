@@ -11,7 +11,14 @@ const gpa = util.gpa;
 const data = @embedFile("data/day04.txt");
 
 pub fn main() !void {
-    
+    const result1 = partOne(gpa, data);
+    if (result1) |value| {
+        print("result1 : {}", value);
+    }
+    const result2 = partTwo(gpa, data);
+    if (result2) |value| {
+        print("result2 : {}", value);
+    }
 }
 
 // Useful stdlib functions
@@ -44,3 +51,23 @@ const desc = std.sort.desc;
 // Generated from template/template.zig.
 // Run `zig build generate` to update.
 // Only unmodified days will be updated.
+
+fn partOne(_: Allocator, _: []const u8) ?u64 {
+    return null;
+}
+
+fn partTwo(_: Allocator, _: []const u8) ?u64 {
+    return null;
+}
+
+test "partOne" {
+    const example = @embedFile("examples/day04.txt");
+    const result = partOne(gpa, example);
+    assert(result == null);
+}
+
+test "partTwo" {
+    const example = @embedFile("examples/day04.txt");
+    const result = partTwo(gpa, example);
+    assert(result == null);
+}
