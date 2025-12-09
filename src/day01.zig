@@ -16,14 +16,14 @@ pub fn main() !void {
     const stop1 = try Instant.now();
     const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
-        print("result1 [{d:.3}ms] : {}", .{(elapsed1/time.ns_per_ms), value});
+        print("result1 [{d:.3}ms] : {}\n", .{ (elapsed1 / time.ns_per_ms), value });
     }
     const start2 = try Instant.now();
-    const result2 = partTwo(gpa, data);
+    const result2 = try partTwo(gpa, data);
     const stop2 = try Instant.now();
     const elapsed2: f64 = @floatFromInt(stop2.since(start2));
     if (result2) |value| {
-        print("result2 [{d:.3}ms] : {}", .{(elapsed2/time.ns_per_ms), value});
+        print("result2 [{d:.3}ms] : {}\n", .{ (elapsed2 / time.ns_per_ms), value });
     }
 }
 
@@ -82,18 +82,17 @@ fn partOne(_: Allocator, input: []const u8) !?u64 {
         const move_size: i64 = try parseInt(i64, line[1..], 10);
         switch (line[0]) {
             'L' => {
-
-                lock_position = @mod((lock_position - move_size) , @as(i64, 100));
-    			if (lock_position < 0) {
-       				lock_position += @as(i64, 100);
-    			}
+                lock_position = @mod((lock_position - move_size), 100);
+                if (lock_position < 0) {
+                    lock_position += @as(i64, 100);
+                }
             },
             'R' => {
-                lock_position = @mod((lock_position + move_size) , @as(i64, 100));
+                lock_position = @mod((lock_position + move_size), 100);
             },
             else => {
                 unreachable;
-            }
+            },
         }
 
         if (lock_position == 0) {
@@ -134,17 +133,21 @@ fn partTwo(_: Allocator, input: []const u8) !?u64 {
             },
             else => {
                 unreachable;
-            }
-        }
-
-        if ((lock_position <= 0 and lock_position > 99) and previous_position != 0) {
-            rotation_times += 1;
+            },
         }
 
         if (lock_position < 0) {
             lock_position += 100;
+            if (previous_position != 0) {
+                rotation_times += 1;
+            }
         } else if (lock_position > 99) {
             lock_position -= 100;
+            if (previous_position != 0) {
+                rotation_times += 1;
+            }
+        } else if (lock_position == 0 and previous_position != 0) {
+            rotation_times += 1;
         }
 
         result += @as(u64, rotation_times);
@@ -159,7 +162,6 @@ test "partOne" {
     if (result) |value| {
         assert(value == 3);
     }
-
 }
 
 test "partTwo" {
