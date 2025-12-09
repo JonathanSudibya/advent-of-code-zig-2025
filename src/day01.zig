@@ -11,13 +11,19 @@ const gpa = util.gpa;
 const data = @embedFile("data/day01.txt");
 
 pub fn main() !void {
-    const result1 = partOne(gpa, data);
+    const start1 = try Instant.now();
+    const result1 = try partOne(gpa, data);
+    const stop1 = try Instant.now();
+    const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
-        print("result1 : {}", value);
+        print("result1 [{d:.3}ms] : {}", .{(elapsed1/time.ns_per_ms), value});
     }
+    const start2 = try Instant.now();
     const result2 = partTwo(gpa, data);
+    const stop2 = try Instant.now();
+    const elapsed2: f64 = @floatFromInt(stop2.since(start2));
     if (result2) |value| {
-        print("result2 : {}", value);
+        print("result2 [{d:.3}ms] : {}", .{(elapsed2/time.ns_per_ms), value});
     }
 }
 
@@ -40,6 +46,7 @@ const sliceMax = std.mem.max;
 
 const parseInt = std.fmt.parseInt;
 const parseFloat = std.fmt.parseFloat;
+const parseUnsigned = std.fmt.parseUnsigned;
 
 const print = std.debug.print;
 const assert = std.debug.assert;
@@ -48,26 +55,117 @@ const sort = std.sort.block;
 const asc = std.sort.asc;
 const desc = std.sort.desc;
 
+const time = std.time;
+const Instant = time.Instant;
+
 // Generated from template/template.zig.
 // Run `zig build generate` to update.
 // Only unmodified days will be updated.
 
-fn partOne(_: Allocator, _: []const u8) ?u64 {
-    return null;
+fn partOne(_: Allocator, input: []const u8) !?u64 {
+    var lock_position: i64 = 50;
+    var result: u64 = 0;
+
+    var start: usize = 0;
+    for (0.., input) |i, c| {
+        if (c != '\n') {
+            continue;
+        }
+
+        const line = input[start..i];
+        start = i + 1;
+
+        if (line.len == 0) {
+            continue;
+        }
+
+        const move_size: i64 = try parseInt(i64, line[1..], 10);
+        switch (line[0]) {
+            'L' => {
+
+                lock_position = @mod((lock_position - move_size) , @as(i64, 100));
+    			if (lock_position < 0) {
+       				lock_position += @as(i64, 100);
+    			}
+            },
+            'R' => {
+                lock_position = @mod((lock_position + move_size) , @as(i64, 100));
+            },
+            else => {
+                unreachable;
+            }
+        }
+
+        if (lock_position == 0) {
+            result += 1;
+        }
+    }
+
+    return result;
 }
 
-fn partTwo(_: Allocator, _: []const u8) ?u64 {
-    return null;
+fn partTwo(_: Allocator, input: []const u8) !?u64 {
+    var lock_position: i64 = 50;
+    var result: u64 = 0;
+
+    var start: usize = 0;
+    for (0.., input) |i, c| {
+        if (c != '\n') {
+            continue;
+        }
+
+        const line = input[start..i];
+        start = i + 1;
+
+        if (line.len == 0) {
+            continue;
+        }
+
+        const move_size: i64 = try parseInt(i64, line[1..], 10);
+        const previous_position: i64 = lock_position;
+        var rotation_times: u64 = @intCast(@divFloor(move_size, 100));
+
+        switch (line[0]) {
+            'L' => {
+                lock_position -= @mod(move_size, 100);
+            },
+            'R' => {
+                lock_position += @mod(move_size, 100);
+            },
+            else => {
+                unreachable;
+            }
+        }
+
+        if ((lock_position <= 0 and lock_position > 99) and previous_position != 0) {
+            rotation_times += 1;
+        }
+
+        if (lock_position < 0) {
+            lock_position += 100;
+        } else if (lock_position > 99) {
+            lock_position -= 100;
+        }
+
+        result += @as(u64, rotation_times);
+    }
+
+    return result;
 }
 
 test "partOne" {
     const example = @embedFile("examples/day01.txt");
-    const result = partOne(gpa, example);
-    assert(result == null);
+    const result = try partOne(gpa, example);
+    if (result) |value| {
+        assert(value == 3);
+    }
+
 }
 
 test "partTwo" {
     const example = @embedFile("examples/day01.txt");
-    const result = partTwo(gpa, example);
-    assert(result == null);
+    const result = try partTwo(gpa, example);
+    if (result) |value| {
+        assert(value == 6);
+    }
 }
