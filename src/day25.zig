@@ -16,14 +16,14 @@ pub fn main() !void {
     const stop1 = try Instant.now();
     const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
-        print("result1 [{d:.3}] : {}", .{ (elapsed1 / time.ns_per_ms), value });
+        print("result1 [{d:.3} ms] : {}", .{ (elapsed1 / time.ns_per_ms), value });
     }
     const start2 = try Instant.now();
     const result2 = try partTwo(gpa, data);
     const stop2 = try Instant.now();
     const elapsed2: f64 = @floatFromInt(stop2.since(start2));
     if (result2) |value| {
-        print("result2 [{d:.3}] : {}", .{ (elapsed2 / time.ns_per_ms), value });
+        print("result2 [{d:.3} ms] : {}", .{ (elapsed2 / time.ns_per_ms), value });
     }
 }
 

@@ -16,14 +16,14 @@ pub fn main() !void {
     const stop1 = try Instant.now();
     const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
-        print("result1 [{d:.3}] : {}", .{ (elapsed1 / time.ns_per_ms), value });
+        print("result1 [{d:.3}ms] : {}", .{ (elapsed1 / time.ns_per_ms), value });
     }
     const start2 = try Instant.now();
-    const result2 = try partTwo(gpa, data);
+    const result2 = try partTwo(data);
     const stop2 = try Instant.now();
     const elapsed2: f64 = @floatFromInt(stop2.since(start2));
     if (result2) |value| {
-        print("result2 [{d:.3}] : {}", .{ (elapsed2 / time.ns_per_ms), value });
+        print("result2 [{d:.3}ms] : {}", .{ (elapsed2 / time.ns_per_ms), value });
     }
 }
 
@@ -62,18 +62,36 @@ const Instant = time.Instant;
 // Only unmodified days will be updated.
 
 fn partOne(input: []const u8) !?u64 {
+    var field = try util.allocArrayMxN(i64, gpa, 500, 2);
+    defer util.freeArray(gpa, field);
     var f_iter = splitSca(u8, input, '\n');
+    var index: usize = 0;
     while (f_iter.next()) |line| {
         if (line.len == 0) {
             continue;
         }
 
         var l_iter = splitSca(u8, line, ',');
+        var inner_idx: usize = 0;
         while (l_iter.next()) |part| {
-            print("Part: {s}\n", .{part});
+            field[index][inner_idx] = try parseInt(i64, part, 10);
+            inner_idx += 1;
+        }
+
+        index += 1;
+    }
+    var maxSize: u64 = 0;
+    for (0..index) |i| {
+        for (i + 1..index) |j| {
+            const p1 = field[i];
+            const p2 = field[j];
+            const size: u64 = (@abs(p1[0] - p2[0]) + 1) * (@abs(p1[1] - p2[1]) + 1);
+            if (maxSize < size) {
+                maxSize = size;
+            }
         }
     }
-    return null;
+    return @intCast(maxSize);
 }
 
 fn partTwo(_: []const u8) !?u64 {
@@ -83,7 +101,9 @@ fn partTwo(_: []const u8) !?u64 {
 test "partOne" {
     const example = @embedFile("examples/day09.txt");
     const result = try partOne(example);
-    assert(result == null);
+    if (result) |value| {
+        assert(value == 50);
+    }
 }
 
 test "partTwo" {
