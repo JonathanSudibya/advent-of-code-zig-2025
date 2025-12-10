@@ -8,11 +8,11 @@ const BitSet = std.DynamicBitSet;
 const util = @import("util.zig");
 const gpa = util.gpa;
 
-const data = @embedFile("data/day01.txt");
+const data = @embedFile("data/day09.txt");
 
 pub fn main() !void {
     const start1 = try Instant.now();
-    const result1 = partOne(gpa, data);
+    const result1 = try partOne(data);
     const stop1 = try Instant.now();
     const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
@@ -61,22 +61,33 @@ const Instant = time.Instant;
 // Run `zig build generate` to update.
 // Only unmodified days will be updated.
 
-fn partOne(_: Allocator, _: []const u8) !?u64 {
+fn partOne(input: []const u8) !?u64 {
+    var f_iter = splitSca(u8, input, '\n');
+    while (f_iter.next()) |line| {
+        if (line.len == 0) {
+            continue;
+        }
+
+        var l_iter = splitSca(u8, line, ',');
+        while (l_iter.next()) |part| {
+            print("Part: {s}\n", .{part});
+        }
+    }
     return null;
 }
 
-fn partTwo(_: Allocator, _: []const u8) !?u64 {
+fn partTwo(_: []const u8) !?u64 {
     return null;
 }
 
 test "partOne" {
-    const example = @embedFile("examples/day01.txt");
-    const result = partOne(gpa, example);
+    const example = @embedFile("examples/day09.txt");
+    const result = try partOne(example);
     assert(result == null);
 }
 
 test "partTwo" {
-    const example = @embedFile("examples/day01.txt");
-    const result = partTwo(gpa, example);
+    const example = @embedFile("examples/day09.txt");
+    const result = try partTwo(example);
     assert(result == null);
 }

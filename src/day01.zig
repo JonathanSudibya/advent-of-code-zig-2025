@@ -12,14 +12,14 @@ const data = @embedFile("data/day01.txt");
 
 pub fn main() !void {
     const start1 = try Instant.now();
-    const result1 = try partOne(gpa, data);
+    const result1 = try partOne(data);
     const stop1 = try Instant.now();
     const elapsed1: f64 = @floatFromInt(stop1.since(start1));
     if (result1) |value| {
         print("result1 [{d:.3}ms] : {}\n", .{ (elapsed1 / time.ns_per_ms), value });
     }
     const start2 = try Instant.now();
-    const result2 = try partTwo(gpa, data);
+    const result2 = try partTwo(data);
     const stop2 = try Instant.now();
     const elapsed2: f64 = @floatFromInt(stop2.since(start2));
     if (result2) |value| {
@@ -62,7 +62,7 @@ const Instant = time.Instant;
 // Run `zig build generate` to update.
 // Only unmodified days will be updated.
 
-fn partOne(_: Allocator, input: []const u8) !?u64 {
+fn partOne(input: []const u8) !?u64 {
     var lock_position: i64 = 50;
     var result: u64 = 0;
 
@@ -103,7 +103,7 @@ fn partOne(_: Allocator, input: []const u8) !?u64 {
     return result;
 }
 
-fn partTwo(_: Allocator, input: []const u8) !?u64 {
+fn partTwo(input: []const u8) !?u64 {
     var lock_position: i64 = 50;
     var result: u64 = 0;
 
@@ -158,7 +158,7 @@ fn partTwo(_: Allocator, input: []const u8) !?u64 {
 
 test "partOne" {
     const example = @embedFile("examples/day01.txt");
-    const result = try partOne(gpa, example);
+    const result = try partOne(example);
     if (result) |value| {
         assert(value == 3);
     }
@@ -166,7 +166,7 @@ test "partOne" {
 
 test "partTwo" {
     const example = @embedFile("examples/day01.txt");
-    const result = try partTwo(gpa, example);
+    const result = try partTwo(example);
     if (result) |value| {
         assert(value == 6);
     }
